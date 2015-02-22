@@ -3,7 +3,7 @@ package org.alloy.metal.iteration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public abstract class SingleEntryIterator<T> implements Iterator<T> {
+public abstract class FetchingIterator<T> implements Iterator<T> {
 	private boolean nextGenerated = false;
 	private T next;
 

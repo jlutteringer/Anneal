@@ -1,4 +1,4 @@
-package org.alloy.metal.function;
+package org.alloy.metal.transducer;
 
 import java.util.Iterator;
 
@@ -7,23 +7,23 @@ public interface Transducer<T, N> {
 	public <R> CompletingReducer<R, N> apply(CompletingReducer<R, ? super T> reducer);
 
 	public default <R> R transduce(Iterator<N> input, R initial, Reducer<R, ? super T> reducer) {
-		return Transducers.transduce(this, input, initial, reducer);
+		return _Transducers.transduce(this, input, initial, reducer);
 	}
 
 	public default <R> Iterator<R> transduceDeferred(Iterator<N> input, R initial, Reducer<R, ? super T> reducer) {
-		return Transducers.transduceDeferred(this, input, initial, reducer);
+		return _Transducers.transduceDeferred(this, input, initial, reducer);
 	}
 
 	public default <R> Iterable<R> transduceDeferred(Iterable<N> input, R initial, Reducer<R, ? super T> reducer) {
-		return Transducers.transduceDeferred(this, input, initial, reducer);
+		return _Transducers.transduceDeferred(this, input, initial, reducer);
 	}
 
 	public default Iterator<T> transduceDeferred(Iterator<N> input) {
-		return Transducers.transduceDeferred(this, input);
+		return _Transducers.transduceDeferred(this, input);
 	}
 
 	public default Iterable<T> transduceDeferred(Iterable<N> input) {
-		return Transducers.transduceDeferred(this, input);
+		return _Transducers.transduceDeferred(this, input);
 	}
 
 	public default <A> Transducer<A, N> compose(final Transducer<A, ? super T> right) {

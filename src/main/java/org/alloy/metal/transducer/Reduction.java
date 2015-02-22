@@ -1,4 +1,4 @@
-package org.alloy.metal.function;
+package org.alloy.metal.transducer;
 
 public class Reduction<T> {
 	private T value;

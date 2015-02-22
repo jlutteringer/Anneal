@@ -8,11 +8,32 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.alloy.metal.data.DataCharacteristics;
+import org.alloy.metal.data.DataCharacteristics.DataRestriction;
+import org.alloy.metal.flow.PipelineStageDescription;
+import org.alloy.metal.transducer.Reduction;
+import org.alloy.metal.transducer.Transducer;
+import org.alloy.metal.transducer.TransductionContext;
+
 import com.google.common.collect.Lists;
 
-public class _Function {
-	public static <A> Transducer<A, A> parallel() {
-		return new Transducer<A, A>() {
+public class _Functions {
+	public static <A> TransductionContext<A, A> identity() {
+		return new TransductionContext<A, A>() {
+			@Override
+			public <R> CompletingReducer<R, A> apply(CompletingReducer<R, ? super A> rf) {
+				return new ReducerOn<R, A>(rf) {
+					@Override
+					public Reduction<R> reduce(R result, A input) {
+						return rf.reduce(result, input);
+					}
+				};
+			};
+		};
+	}
+
+	public static <A> TransductionContext<A, A> parallel() {
+		return new TransductionContext<A, A>() {
 			@Override
 			public <R> CompletingReducer<R, A> apply(CompletingReducer<R, ? super A> rf) {
 				return new ReducerOn<R, A>(rf) {
@@ -33,8 +54,8 @@ public class _Function {
 	* @param <A> input type of input and output reducing functions
 	* @return a new transducer
 	*/
-	public static <A> Transducer<A, A> filter(final Predicate<A> p) {
-		return new Transducer<A, A>() {
+	public static <A> TransductionContext<A, A> filter(final Predicate<A> p) {
+		return new TransductionContext<A, A>() {
 			@Override
 			public <R> CompletingReducer<R, A> apply(CompletingReducer<R, ? super A> rf) {
 				return new ReducerOn<R, A>(rf) {
@@ -58,8 +79,13 @@ public class _Function {
 	* @param <A> input type of input and output reducing functions
 	* @return a new transducer
 	*/
-	public static <A> Transducer<A, A> take(final long numberOfItems, boolean strict) {
-		return new Transducer<A, A>() {
+
+	private static PipelineStageDescription TAKE_DESCRIPTION = new PipelineStageDescription(
+			new DataCharacteristics(DataRestriction.SERIAL),
+			new DataCharacteristics());
+
+	public static <A> TransductionContext<A, A> take(final long numberOfItems, boolean strict) {
+		return new TransductionContext<A, A>(TAKE_DESCRIPTION) {
 			@Override
 			public <R> CompletingReducer<R, A> apply(CompletingReducer<R, ? super A> rf) {
 				return new ReducerOn<R, A>(rf) {
@@ -98,8 +124,12 @@ public class _Function {
 		return take(1, strict);
 	}
 
-	public static <A> Transducer<A, A> sort(final Comparator<A> comparator) {
-		return new Transducer<A, A>() {
+	private static PipelineStageDescription SORT_DESCRIPTION = new PipelineStageDescription(
+			new DataCharacteristics(DataRestriction.SERIAL),
+			new DataCharacteristics());
+
+	public static <A> TransductionContext<A, A> sort(final Comparator<A> comparator) {
+		return new TransductionContext<A, A>(SORT_DESCRIPTION) {
 			@Override
 			public <R> CompletingReducer<R, A> apply(CompletingReducer<R, ? super A> rf) {
 				return new CompletingReducer<R, A>() {
@@ -147,8 +177,8 @@ public class _Function {
 		};
 	}
 
-	public static <A, P> Transducer<Iterable<A>, A> partitionBy(final Function<A, P> f) {
-		return new Transducer<Iterable<A>, A>() {
+	public static <A, P> TransductionContext<Iterable<A>, A> partitionBy(final Function<A, P> f) {
+		return new TransductionContext<Iterable<A>, A>() {
 			@Override
 			public <R> CompletingReducer<R, A> apply(final CompletingReducer<R, ? super Iterable<A>> rf) {
 				return new CompletingReducer<R, A>() {
@@ -198,8 +228,8 @@ public class _Function {
 	* @param <A> the input type of the input and output reducing functions
 	* @return a new transducer
 	*/
-	public static <A> Transducer<Iterable<A>, A> partition(int n) {
-		return new Transducer<Iterable<A>, A>() {
+	public static <A> TransductionContext<Iterable<A>, A> partition(int n) {
+		return new TransductionContext<Iterable<A>, A>() {
 			@Override
 			public <R> CompletingReducer<R, A> apply(final CompletingReducer<R, ? super Iterable<A>> rf) {
 				return new CompletingReducer<R, A>() {

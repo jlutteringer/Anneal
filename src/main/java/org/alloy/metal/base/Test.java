@@ -4,7 +4,8 @@ import java.util.List;
 
 import org.alloy.metal.collections.list.AList;
 import org.alloy.metal.collections.list._Lists;
-import org.alloy.metal.function._Function;
+import org.alloy.metal.flow.Flow;
+import org.alloy.metal.function._Functions;
 
 import com.google.common.collect.Lists;
 
@@ -19,12 +20,22 @@ public class Test {
 				.iterator();
 
 		AList<Integer> integers = _Lists.list(1, 2, 3, 4, 5);
-		AList<Iterable<Integer>> a = integers.filter((element) -> true)
-				.filter((element) -> true)
-				.compose(_Function.filter((element) -> true))
-				.compose(_Function.partition(3))
-				.collectList();
 
-		integers.forEach(System.out::println);
+		AList<Iterable<Integer>> result =
+				integers.flow()
+						.parallel()
+						.filter((element) -> true)
+						.filter((element) -> true)
+						.compose(_Functions.filter((element) -> true))
+						.compose(_Functions.partition(3))
+						.collectList();
+
+		Flow<Iterable<Integer>> flow = integers.flow()
+				.filter((element) -> true)
+				.filter((element) -> true)
+				.compose(_Functions.filter((element) -> true))
+				.compose(_Functions.partition(3));
+
+		result.forEach(System.out::println);
 	}
 }
