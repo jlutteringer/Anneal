@@ -1,61 +1,45 @@
 package org.alloy.metal.flow;
 
 import java.util.Iterator;
-import java.util.Spliterator;
 
-import org.alloy.metal.flow.PipelineStage.BasePipelineChain;
-import org.alloy.metal.flow.PipelineStage.IntermediatePipelineStage;
+import org.alloy.metal.function._Functions;
+import org.alloy.metal.iteration.Cursor;
+import org.alloy.metal.iteration._Iteration;
 import org.alloy.metal.transducer.Transducer;
 import org.alloy.metal.transducer.Transducer.Reducer;
 
 public class TransductionPipeline<T, N> implements Flow<T> {
-	private boolean parallel = false;
 	private Iterator<N> iterator;
+	private Transducer<T, N> transducer;
 
-	private PipelineStage<T, N> pipelineStages;
-
-	public TransductionPipeline(Iterator<N> iterator, PipelineStage<T, N> pipelineStages) {
-		this.pipelineStages = pipelineStages;
+	public TransductionPipeline(Iterator<N> iterator, Transducer<T, N> transducer) {
+		this.transducer = transducer;
 		this.iterator = iterator;
 	}
 
 	@Override
-	public Flow<T> parallel() {
-		parallel = true;
-		return this;
-	}
-
-	@Override
-	public Flow<T> sequential() {
-		parallel = false;
-		return this;
+	public Flow<T> parallelFlow() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public <R> Flow<R> compose(Transducer<R, T> transducer) {
-		return new TransductionPipeline<R, N>(iterator, new IntermediatePipelineStage<>(pipelineStages, transducer));
+		return new TransductionPipeline<R, N>(iterator, this.transducer.compose(transducer));
 	}
 
 	@Override
-	public Iterator<T> iterator() {
-		return null;
-//		return pipelineStages.fuse(parallel).transduceDeferred(iterator);
-	}
-
-	@Override
-	public Spliterator<T> spliterator() {
-		return null; // pipelineStages.bind(parallel, iterator);
+	public Cursor<T> cursor() {
+		return _Iteration.cursor(transducer.transduceDeferred(iterator));
 	}
 
 	@Override
 	public <R> R collect(R initial, Reducer<R, ? super T> reducer) {
-		return null;
-//		return internalTransducer.transduce(iterator, initial, reducer);
+		return transducer.transduce(iterator, initial, reducer);
 	}
 
 	public static class BaseTransductionPipeline<T> extends TransductionPipeline<T, T> {
 		public BaseTransductionPipeline(Iterator<T> iterator) {
-			super(iterator, new BasePipelineChain<>());
+			super(iterator, _Functions.identity());
 		}
 	}
 }

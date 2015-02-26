@@ -23,7 +23,7 @@ public class Test {
 
 		AList<Iterable<Integer>> result =
 				integers.flow()
-						.parallel()
+						.parallelFlow()
 						.filter((element) -> true)
 						.filter((element) -> true)
 						.compose(_Functions.filter((element) -> true))

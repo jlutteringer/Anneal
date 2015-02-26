@@ -11,6 +11,8 @@ import java.util.function.Predicate;
 import org.alloy.metal.data.DataCharacteristics;
 import org.alloy.metal.data.DataCharacteristics.DataRestriction;
 import org.alloy.metal.flow.PipelineStageDescription;
+import org.alloy.metal.flow.Source;
+import org.alloy.metal.iteration.Cursor;
 import org.alloy.metal.transducer.Reduction;
 import org.alloy.metal.transducer.Transducer;
 import org.alloy.metal.transducer.TransductionContext;
@@ -18,6 +20,11 @@ import org.alloy.metal.transducer.TransductionContext;
 import com.google.common.collect.Lists;
 
 public class _Functions {
+	@SuppressWarnings("unchecked")
+	public static <T, N> Function<T, N> cast() {
+		return (value) -> ((N) value);
+	}
+
 	public static <A> TransductionContext<A, A> identity() {
 		return new TransductionContext<A, A>() {
 			@Override
@@ -171,6 +178,36 @@ public class _Functions {
 					@Override
 					public Reduction<R> reduce(R result, N input) {
 						return reducer.reduce(result, function.apply(input));
+					}
+				};
+			}
+		};
+	}
+
+	public static <T, N> Transducer<T, N> flatMap(Function<N, Source<T>> function) {
+		return new Transducer<T, N>() {
+			@Override
+			public <R> CompletingReducer<R, N> apply(CompletingReducer<R, ? super T> reducer) {
+				return new ReducerOn<R, N>(reducer) {
+					private Cursor<T> currentCursor;
+
+					@Override
+					public Reduction<R> reduce(R result, N input) {
+						if (currentCursor == null) {
+							currentCursor = function.apply(input).flow().cursor();
+							if (!currentCursor.hasNext()) {
+								return Reduction.incomplete(result);
+							}
+						}
+
+						Reduction<R> reduction = reducer.reduce(result, currentCursor.next());
+						if (currentCursor.hasNext()) {
+							return Reduction.witholdInput(reduction);
+						}
+						else {
+							currentCursor = null;
+							return reduction;
+						}
 					}
 				};
 			}
