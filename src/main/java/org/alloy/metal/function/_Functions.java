@@ -61,7 +61,7 @@ public class _Functions {
 	* @param <A> input type of input and output reducing functions
 	* @return a new transducer
 	*/
-	public static <A> TransductionContext<A, A> filter(final Predicate<A> p) {
+	public static <A> TransductionContext<A, A> filter(final Predicate<? super A> p) {
 		return new TransductionContext<A, A>() {
 			@Override
 			public <R> CompletingReducer<R, A> apply(CompletingReducer<R, ? super A> rf) {
@@ -194,7 +194,7 @@ public class _Functions {
 					@Override
 					public Reduction<R> reduce(R result, N input) {
 						if (currentCursor == null) {
-							currentCursor = function.apply(input).flow().cursor();
+							currentCursor = function.apply(input).cursor();
 							if (!currentCursor.hasNext()) {
 								return Reduction.incomplete(result);
 							}
@@ -208,6 +208,20 @@ public class _Functions {
 							currentCursor = null;
 							return reduction;
 						}
+					}
+				};
+			}
+		};
+	}
+
+	public static <T, N> Transducer<T, N> traverse(Function<T, Source<T>> function) {
+		return new Transducer<T, N>() {
+			@Override
+			public <R> CompletingReducer<R, N> apply(CompletingReducer<R, ? super T> reducer) {
+				return new ReducerOn<R, N>(reducer) {
+					@Override
+					public Reduction<R> reduce(R result, N input) {
+						return null;
 					}
 				};
 			}

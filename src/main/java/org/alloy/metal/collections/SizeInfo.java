@@ -2,7 +2,7 @@ package org.alloy.metal.collections;
 
 public class SizeInfo {
 
-	public long getFixedSize() {
+	public int getFixedSize() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

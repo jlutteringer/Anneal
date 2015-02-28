@@ -1,5 +1,7 @@
 package org.alloy.metal.collections.set;
 
-public interface ASet<T> {
+import org.alloy.metal.collections.ACollection;
+
+public interface ASet<T> extends ACollection<T> {
 
 }

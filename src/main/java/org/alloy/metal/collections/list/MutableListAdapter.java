@@ -18,14 +18,19 @@ public class MutableListAdapter<T> extends AListAdapter<T> implements MutableLis
 	}
 
 	@Override
-	public boolean add(long index, T element) {
-		getDelegate().add((int) index, element);
+	public boolean add(int index, T element) {
+		getDelegate().add(index, element);
 		return true;
 	}
 
 	@Override
-	public T set(long index, T element) {
+	public T set(int index, T element) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<T> asList() {
+		return this.getDelegate();
 	}
 }

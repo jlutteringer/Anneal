@@ -42,4 +42,8 @@ public class _Iteration {
 	public static <T> Cursor<T> cursor(Iterator<T> iterator) {
 		return new IteratorCursor<T>(iterator);
 	}
+
+	public static <T> Cursor<T> cursor(Iterable<T> iterable) {
+		return cursor(iterable.iterator());
+	}
 }

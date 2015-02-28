@@ -1,5 +1,7 @@
 package org.alloy.metal.collections.list;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,7 +37,17 @@ public class AListAdapter<T> implements AList<T>, Delegator<List<T>> {
 	}
 
 	@Override
-	public T get(long index) {
-		return getDelegate().get((int) index);
+	public T get(int index) {
+		return getDelegate().get(index);
+	}
+
+	@Override
+	public List<T> asList() {
+		return Collections.unmodifiableList(this.getDelegate());
+	}
+
+	@Override
+	public Collection<T> asCollection() {
+		return getDelegate();
 	}
 }

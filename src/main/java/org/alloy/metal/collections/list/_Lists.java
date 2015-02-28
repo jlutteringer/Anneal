@@ -25,13 +25,6 @@ public class _Lists {
 		return list;
 	}
 
-	public static <T> List<T> list(List<T> list) {
-		if (list == null) {
-			return Lists.newArrayList();
-		}
-		return list;
-	}
-
 	@SafeVarargs
 	public static <T> List<T> utilList(T... items) {
 		return Lists.newArrayList(items);
@@ -39,6 +32,13 @@ public class _Lists {
 
 	public static <T> List<T> utilList(Iterable<T> items) {
 		return Lists.newArrayList(items);
+	}
+
+	@SafeVarargs
+	public static <T> List<T> utilList(Iterable<T> items, T... otherItems) {
+		List<T> list = utilList(items);
+		list.addAll(utilList(otherItems));
+		return list;
 	}
 
 	public static <T> List<T> utilList(List<T> list) {
