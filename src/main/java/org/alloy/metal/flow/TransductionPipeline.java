@@ -3,8 +3,8 @@ package org.alloy.metal.flow;
 import java.util.Iterator;
 
 import org.alloy.metal.function._Functions;
-import org.alloy.metal.iteration.Cursor;
 import org.alloy.metal.iteration._Iteration;
+import org.alloy.metal.iteration.cursor.Cursor;
 import org.alloy.metal.transducer.Transducer;
 import org.alloy.metal.transducer.Transducer.Reducer;
 

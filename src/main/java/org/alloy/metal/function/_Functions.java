@@ -3,7 +3,6 @@ package org.alloy.metal.function;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -12,7 +11,8 @@ import org.alloy.metal.data.DataCharacteristics;
 import org.alloy.metal.data.DataCharacteristics.DataRestriction;
 import org.alloy.metal.flow.PipelineStageDescription;
 import org.alloy.metal.flow.Source;
-import org.alloy.metal.iteration.Cursor;
+import org.alloy.metal.iteration._Iteration;
+import org.alloy.metal.iteration.cursor.Cursor;
 import org.alloy.metal.transducer.Reduction;
 import org.alloy.metal.transducer.Transducer;
 import org.alloy.metal.transducer.TransductionContext;
@@ -189,24 +189,21 @@ public class _Functions {
 			@Override
 			public <R> CompletingReducer<R, N> apply(CompletingReducer<R, ? super T> reducer) {
 				return new ReducerOn<R, N>(reducer) {
-					private Cursor<T> currentCursor;
+					private Cursor<T> currentCursor = _Iteration.emptyCursor();
 
 					@Override
 					public Reduction<R> reduce(R result, N input) {
-						if (currentCursor == null) {
-							currentCursor = function.apply(input).cursor();
-							if (!currentCursor.hasNext()) {
-								return Reduction.incomplete(result);
-							}
-						}
-
-						Reduction<R> reduction = reducer.reduce(result, currentCursor.next());
 						if (currentCursor.hasNext()) {
-							return Reduction.witholdInput(reduction);
+							return reduceCursor(reducer.reduce(result, currentCursor.next()), currentCursor);
 						}
 						else {
-							currentCursor = null;
-							return reduction;
+							currentCursor = function.apply(input).cursor();
+							if (currentCursor.hasNext()) {
+								return reduceCursor(reducer.reduce(result, currentCursor.next()), currentCursor);
+							}
+							else {
+								return Reduction.incomplete(result);
+							}
 						}
 					}
 				};
@@ -214,14 +211,48 @@ public class _Functions {
 		};
 	}
 
-	public static <T, N> Transducer<T, N> traverse(Function<T, Source<T>> function) {
-		return new Transducer<T, N>() {
+	public static <T> Transducer<T, T> merge(Source<T> source) {
+		return new Transducer<T, T>() {
 			@Override
-			public <R> CompletingReducer<R, N> apply(CompletingReducer<R, ? super T> reducer) {
-				return new ReducerOn<R, N>(reducer) {
+			public <R> CompletingReducer<R, T> apply(CompletingReducer<R, ? super T> reducer) {
+				return new ReducerOn<R, T>(reducer) {
+					private Cursor<T> cursor = source.cursor();
+
 					@Override
-					public Reduction<R> reduce(R result, N input) {
-						return null;
+					public Reduction<R> complete(R result) {
+						if (cursor.hasNext()) {
+							return reducer.reduce(result, cursor.next());
+						}
+						else {
+							return reducer.complete(result);
+						}
+					}
+
+					@Override
+					public Reduction<R> reduce(R result, T input) {
+						return reducer.reduce(result, input);
+					}
+				};
+			}
+		};
+	}
+
+	public static <T> Transducer<T, T> traverse(Function<T, Source<T>> function) {
+		return new Transducer<T, T>() {
+			@Override
+			public <R> CompletingReducer<R, T> apply(CompletingReducer<R, ? super T> reducer) {
+				return new ReducerOn<R, T>(reducer) {
+					private Cursor<T> currentCursor = _Iteration.emptyCursor();
+
+					@Override
+					public Reduction<R> reduce(R result, T input) {
+						if (currentCursor.hasNext()) {
+							return reduceCursor(reducer.reduce(result, currentCursor.next()), currentCursor);
+						}
+						else {
+							currentCursor = function.apply(input).cursor();
+							return reduceCursor(reducer.reduce(result, input), currentCursor);
+						}
 					}
 				};
 			}
@@ -314,6 +345,15 @@ public class _Functions {
 		};
 	}
 
+	private static <R> Reduction<R> reduceCursor(Reduction<R> reduction, Cursor<?> cursor) {
+		if (cursor.hasNext()) {
+			return Reduction.witholdInput(reduction);
+		}
+		else {
+			return reduction;
+		}
+	}
+
 	public static void main(String[] args) {
 
 		Transducer<String, Integer> toString = map((a) -> {
@@ -328,8 +368,8 @@ public class _Functions {
 		Transducer<Iterable<Long>, Integer> combined =
 				toString.compose(parseLong).compose(sort).compose(partition);
 
-		Iterator<Iterable<Long>> test2 = combined.transduceDeferred(Lists.newArrayList(3, 2, 1, 6, 23, 3, 3).iterator(), Lists.newArrayList(), (result, input) -> input);
-		test2.forEachRemaining((iterable) -> {
+		Cursor<Iterable<Long>> test2 = combined.transduceDeferred(Lists.newArrayList(3, 2, 1, 6, 23, 3, 3).iterator(), Lists.newArrayList(), (result, input) -> input);
+		test2.forEach((iterable) -> {
 			iterable.forEach(System.out::println);
 			System.out.println("-");
 		});
@@ -341,8 +381,8 @@ public class _Functions {
 		Transducer<Iterable<Long>, Integer> combined2 =
 				toString.compose(parseLong).compose(take).compose(partition);
 
-		Iterator<Iterable<Long>> test4 = combined2.transduceDeferred(Lists.newArrayList(3, 2, 1, 6, 23, 3, 3).iterator(), Lists.newArrayList(), (result, input) -> input);
-		test4.forEachRemaining((iterable) -> {
+		Cursor<Iterable<Long>> test4 = combined2.transduceDeferred(Lists.newArrayList(3, 2, 1, 6, 23, 3, 3).iterator(), Lists.newArrayList(), (result, input) -> input);
+		test4.forEach((iterable) -> {
 			iterable.forEach(System.out::println);
 			System.out.println("-");
 		});

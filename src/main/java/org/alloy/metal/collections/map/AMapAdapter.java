@@ -2,14 +2,16 @@ package org.alloy.metal.collections.map;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.alloy.metal.collections.ACollection;
-import org.alloy.metal.collections.SizeInfo;
 import org.alloy.metal.collections._Collections;
+import org.alloy.metal.collections.size.FixedSizeInfo;
+import org.alloy.metal.collections.size.SizeInfo;
 import org.alloy.metal.delegation.Delegator;
+import org.alloy.metal.iteration._Iteration;
+import org.alloy.metal.iteration.cursor.Cursor;
 
 public class AMapAdapter<T, N> implements AMap<T, N>, Delegator<Map<T, N>> {
 	private Map<T, N> map;
@@ -25,8 +27,7 @@ public class AMapAdapter<T, N> implements AMap<T, N>, Delegator<Map<T, N>> {
 
 	@Override
 	public SizeInfo getSizeInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return new FixedSizeInfo(this.getDelegate().size());
 	}
 
 	@Override
@@ -35,8 +36,8 @@ public class AMapAdapter<T, N> implements AMap<T, N>, Delegator<Map<T, N>> {
 	}
 
 	@Override
-	public Iterator<Entry<T, N>> iterator() {
-		return this.getDelegate().entrySet().iterator();
+	public Cursor<Entry<T, N>> cursor() {
+		return _Iteration.cursor(this.getDelegate().entrySet().iterator());
 	}
 
 	@Override

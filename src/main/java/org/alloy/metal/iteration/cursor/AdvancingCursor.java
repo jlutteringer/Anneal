@@ -1,4 +1,4 @@
-package org.alloy.metal.iteration;
+package org.alloy.metal.iteration.cursor;
 
 import java.util.NoSuchElementException;
 

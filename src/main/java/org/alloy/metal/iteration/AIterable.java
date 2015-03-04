@@ -1,5 +1,6 @@
 package org.alloy.metal.iteration;
 
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 import org.alloy.metal.flow.Completable;
@@ -25,7 +26,7 @@ public interface AIterable<T> extends Iterable<T>, FlowingSource<T>, Completable
 	}
 
 	@Override
-	public default Cursor<T> cursor() {
-		return _Iteration.cursor(this.iterator());
+	public default Iterator<T> iterator() {
+		return cursor().toIterator();
 	}
 }

@@ -1,13 +1,13 @@
-package org.alloy.metal.iteration;
+package org.alloy.metal.iteration.cursor;
 
 import java.util.function.Consumer;
 
 import org.alloy.metal.domain.Advancer;
 
-public class DelegatingAdvancingIterator<T> extends AdvancingIterator<T> {
+public class DelegatingAdvancingCursor<T> extends AdvancingCursor<T> {
 	private Advancer<T> advancer;
 
-	public DelegatingAdvancingIterator(Advancer<T> advancer) {
+	public DelegatingAdvancingCursor(Advancer<T> advancer) {
 		this.advancer = advancer;
 	}
 

@@ -37,5 +37,9 @@ public interface Transducable<T> {
 		return this.compose(_Functions.partition((int) size));
 	}
 
+	public default Flow<T> merge(Source<T> source) {
+		return this.compose(_Functions.merge(source));
+	}
+
 	public <R> Flow<R> compose(Transducer<R, T> transducer);
 }

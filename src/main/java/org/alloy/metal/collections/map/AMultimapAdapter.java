@@ -1,13 +1,15 @@
 package org.alloy.metal.collections.map;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.alloy.metal.collections.ACollection;
-import org.alloy.metal.collections.SizeInfo;
 import org.alloy.metal.collections._Collections;
+import org.alloy.metal.collections.size.FixedSizeInfo;
+import org.alloy.metal.collections.size.SizeInfo;
 import org.alloy.metal.delegation.Delegator;
+import org.alloy.metal.iteration._Iteration;
+import org.alloy.metal.iteration.cursor.Cursor;
 
 import com.google.common.collect.Multimap;
 
@@ -20,8 +22,7 @@ public class AMultimapAdapter<T, N> implements AMultimap<T, N>, Delegator<Multim
 
 	@Override
 	public SizeInfo getSizeInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return new FixedSizeInfo(this.getDelegate().size());
 	}
 
 	@Override
@@ -50,8 +51,8 @@ public class AMultimapAdapter<T, N> implements AMultimap<T, N>, Delegator<Multim
 	}
 
 	@Override
-	public Iterator<Entry<T, N>> iterator() {
-		return this.getDelegate().entries().iterator();
+	public Cursor<Entry<T, N>> cursor() {
+		return _Iteration.cursor(this.getDelegate().entries().iterator());
 	}
 
 	@Override

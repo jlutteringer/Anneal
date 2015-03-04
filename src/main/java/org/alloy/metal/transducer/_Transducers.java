@@ -1,15 +1,15 @@
 package org.alloy.metal.transducer;
 
 import java.util.Iterator;
-import java.util.Spliterator;
 
 import org.alloy.metal.iteration.GeneratingIterable;
+import org.alloy.metal.iteration.cursor.Cursor;
 import org.alloy.metal.transducer.Transducer.CompletingReducer;
 import org.alloy.metal.transducer.Transducer.Reducer;
 
 public class _Transducers {
 	private static <R, T> R reduce(CompletingReducer<R, ? super T> reducingFunction, Iterator<T> input, R initial) {
-		ReductionIterator<R, T> iterator = new ReductionIterator<R, T>(reducingFunction, input, initial);
+		ReductionCursor<R, T> iterator = new ReductionCursor<R, T>(reducingFunction, input, initial);
 		R ret = initial;
 		while (iterator.hasNext()) {
 			ret = iterator.next();
@@ -22,14 +22,9 @@ public class _Transducers {
 		return reduce(transducedFunction, input, initial);
 	}
 
-	public static <R, A, B> Spliterator<R> transduceDeferred(Transducer<A, B> transducer, Spliterator<B> input, R initial, Reducer<R, ? super A> reducer) {
+	public static <R, A, B> Cursor<R> transduceDeferred(Transducer<A, B> transducer, Iterator<B> input, R initial, Reducer<R, ? super A> reducer) {
 		CompletingReducer<R, B> transducedFunction = transducer.apply(baseReducer(reducer));
-		return new ReductionSpliterator<>(transducedFunction, input, initial);
-	}
-
-	public static <R, A, B> Iterator<R> transduceDeferred(Transducer<A, B> transducer, Iterator<B> input, R initial, Reducer<R, ? super A> reducer) {
-		CompletingReducer<R, B> transducedFunction = transducer.apply(baseReducer(reducer));
-		return new ReductionIterator<>(transducedFunction, input, initial);
+		return new ReductionCursor<>(transducedFunction, input, initial);
 	}
 
 	public static <R, A, B> Iterable<R> transduceDeferred(Transducer<A, B> transducer, Iterable<B> input, R initial, Reducer<R, ? super A> reducer) {
@@ -38,9 +33,9 @@ public class _Transducers {
 		});
 	}
 
-	public static <R, A, B> Iterator<R> transduceDeferred(Transducer<R, B> transducer, Iterator<B> input) {
+	public static <R, A, B> Cursor<R> transduceDeferred(Transducer<R, B> transducer, Iterator<B> input) {
 		CompletingReducer<R, B> transducedFunction = transducer.apply(baseReducer((result, value) -> value));
-		return new ReductionIterator<>(transducedFunction, input, null);
+		return new ReductionCursor<>(transducedFunction, input, null);
 	}
 
 	public static <R, A, B> Iterable<R> transduceDeferred(Transducer<R, B> transducer, Iterable<B> input) {

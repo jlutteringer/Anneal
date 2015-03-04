@@ -2,28 +2,29 @@ package org.alloy.metal.collections.list;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-import org.alloy.metal.collections.SizeInfo;
+import org.alloy.metal.collections.size.FixedSizeInfo;
+import org.alloy.metal.collections.size.SizeInfo;
 import org.alloy.metal.delegation.Delegator;
+import org.alloy.metal.iteration._Iteration;
+import org.alloy.metal.iteration.cursor.Cursor;
 
-public class AListAdapter<T> implements AList<T>, Delegator<List<T>> {
-	private List<T> list;
+public class AListAdapter<N extends List<T>, T> implements AList<T>, Delegator<N> {
+	private N list;
 
-	public AListAdapter(List<T> list) {
+	public AListAdapter(N list) {
 		this.list = list;
 	}
 
 	@Override
-	public List<T> getDelegate() {
+	public N getDelegate() {
 		return list;
 	}
 
 	@Override
 	public SizeInfo getSizeInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return new FixedSizeInfo(this.getDelegate().size());
 	}
 
 	@Override
@@ -32,8 +33,8 @@ public class AListAdapter<T> implements AList<T>, Delegator<List<T>> {
 	}
 
 	@Override
-	public Iterator<T> iterator() {
-		return getDelegate().iterator();
+	public Cursor<T> cursor() {
+		return _Iteration.cursor(this.getDelegate().iterator());
 	}
 
 	@Override

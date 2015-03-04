@@ -6,4 +6,6 @@ public interface MutableList<T> extends MutableCollection<T>, AList<T> {
 	public boolean add(int index, T element);
 
 	public T set(int index, T element);
+
+	public void clear();
 }

@@ -2,6 +2,8 @@ package org.alloy.metal.transducer;
 
 import java.util.Iterator;
 
+import org.alloy.metal.iteration.cursor.Cursor;
+
 @FunctionalInterface
 public interface Transducer<T, N> {
 	public <R> CompletingReducer<R, N> apply(CompletingReducer<R, ? super T> reducer);
@@ -10,7 +12,7 @@ public interface Transducer<T, N> {
 		return _Transducers.transduce(this, input, initial, reducer);
 	}
 
-	public default <R> Iterator<R> transduceDeferred(Iterator<N> input, R initial, Reducer<R, ? super T> reducer) {
+	public default <R> Cursor<R> transduceDeferred(Iterator<N> input, R initial, Reducer<R, ? super T> reducer) {
 		return _Transducers.transduceDeferred(this, input, initial, reducer);
 	}
 
@@ -18,7 +20,7 @@ public interface Transducer<T, N> {
 		return _Transducers.transduceDeferred(this, input, initial, reducer);
 	}
 
-	public default Iterator<T> transduceDeferred(Iterator<N> input) {
+	public default Cursor<T> transduceDeferred(Iterator<N> input) {
 		return _Transducers.transduceDeferred(this, input);
 	}
 

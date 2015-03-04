@@ -1,9 +1,12 @@
 package org.alloy.metal.collections;
 
 import java.util.Collection;
-import java.util.Iterator;
 
+import org.alloy.metal.collections.size.FixedSizeInfo;
+import org.alloy.metal.collections.size.SizeInfo;
 import org.alloy.metal.delegation.Delegator;
+import org.alloy.metal.iteration._Iteration;
+import org.alloy.metal.iteration.cursor.Cursor;
 
 public class ACollectionAdapter<T> implements ACollection<T>, Delegator<Collection<T>> {
 	private Collection<T> collection;
@@ -18,14 +21,13 @@ public class ACollectionAdapter<T> implements ACollection<T>, Delegator<Collecti
 	}
 
 	@Override
-	public Iterator<T> iterator() {
-		return this.getDelegate().iterator();
+	public Cursor<T> cursor() {
+		return _Iteration.cursor(this.getDelegate().iterator());
 	}
 
 	@Override
 	public SizeInfo getSizeInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		return new FixedSizeInfo(this.getDelegate().size());
 	}
 
 	@Override

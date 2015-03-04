@@ -3,11 +3,10 @@ package org.alloy.metal.string;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 
-import org.alloy.metal.iteration.FetchingIterator;
-import org.alloy.metal.string.StringTokenIterator.StringToken;
 import org.alloy.metal.utility._Precondition;
 
-public class StringTokenIterator extends FetchingIterator<StringToken> {
+//FUTURE
+public class StringTokenIterator {
 	private final String tokenPrefix;
 	private final String tokenSuffix;
 	private final String source;
@@ -22,7 +21,7 @@ public class StringTokenIterator extends FetchingIterator<StringToken> {
 		this.source = _String.getDefault(source);
 	}
 
-	@Override
+//	@Override
 	protected StringToken fetch() throws NoSuchElementException {
 		if (currentLocation >= source.length() - 1) {
 			throw new NoSuchElementException();

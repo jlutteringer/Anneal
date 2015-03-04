@@ -2,11 +2,13 @@ package org.alloy.metal.collections;
 
 import java.util.Collection;
 
+import org.alloy.metal.collections.size.SizeInfo;
 import org.alloy.metal.iteration.AIterable;
 
 public interface ACollection<T> extends AIterable<T> {
 	public SizeInfo getSizeInfo();
 
+	@Override
 	public boolean contains(T element);
 
 	public Collection<T> asCollection();
